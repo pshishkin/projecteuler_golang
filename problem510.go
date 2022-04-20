@@ -52,11 +52,15 @@ func validateAB(a int64, b int64, sqrt int64, N int) int64 {
 // move some variables outside to save stack size
 var ()
 
-func iterateAfterAB(a int64, b int64, sqrt int64, pIndex int, N int, primeNumberList *[]int, ansList *[]ABC) (int64, error) {
+func iterateAfterAB(a int64, b int64, sqrt int64, pIndex int, N int, primeNumberList *[]int, ansList *[]ABC) int64 {
 	if pIndex == len(*primeNumberList) {
-		return 0, nil
+		return 0
 	}
-
+	/*
+		if a == (1<<6)*3*3 && b == (1<<6) && N == 1600 {
+			fmt.Println("hoho")
+		}
+	*/
 	currentPrime := (*primeNumberList)[pIndex]
 
 	var localAns int64 = 0
@@ -64,8 +68,8 @@ func iterateAfterAB(a int64, b int64, sqrt int64, pIndex int, N int, primeNumber
 	// Check that further iterations are needed at all, paying attention to overflow, i.e.
 	// N = 10^9
 	// a and b ~= 10^9
-	if a*int64(currentPrime) > int64(N) || b*int64(currentPrime) > int64(N) {
-		return localAns, nil
+	if a*int64(currentPrime) > int64(N) && b*int64(currentPrime) > int64(N) {
+		return localAns
 	}
 
 	primePowerA := 0
@@ -88,17 +92,34 @@ func iterateAfterAB(a int64, b int64, sqrt int64, pIndex int, N int, primeNumber
 				c := validateAB(a*primeMulA, b*primeMulB, sqrt*sqrtMulA*sqrtMulB, N)
 				if c != -1 {
 					localAns += a*primeMulA + b*primeMulB + c
-					*ansList = append(*ansList, ABC{a, b, c})
+					*ansList = append(*ansList, ABC{a * primeMulA, b * primeMulB, c})
 				}
 			}
 
-			retAns, err := iterateAfterAB(a*primeMulA, b*primeMulB, sqrt*sqrtMulA*sqrtMulB, pIndex+1, N, primeNumberList, ansList)
-			if err != nil {
-				return retAns + localAns, err
-			}
-			localAns += retAns
+			if int64(currentPrime)*int64(currentPrime) > int64(N) {
+				// only one last iteration left, so no need in recurstion, we may here save stack size and just iterate
+				for newpIndex := pIndex + 1; newpIndex < len(*primeNumberList); newpIndex += 1 {
+					newPrimeNumber := int64((*primeNumberList)[newpIndex])
+					//only this option of factor decomposition is possible
+					newA := a * primeMulA * newPrimeNumber
+					newB := b * primeMulB * newPrimeNumber
+					if newA > int64(N) || newB > int64(N) {
+						break
+					}
 
-			// Prevent overflow
+					c := validateAB(newA,
+						newB,
+						sqrt*sqrtMulA*sqrtMulB*newPrimeNumber,
+						N)
+					if c != -1 {
+						localAns += newA + newB + c
+						*ansList = append(*ansList, ABC{newA, newB, c})
+					}
+				}
+			} else {
+				localAns += iterateAfterAB(a*primeMulA, b*primeMulB, sqrt*sqrtMulA*sqrtMulB, pIndex+1, N, primeNumberList, ansList)
+			}
+			// Prevent overflow during next iteration
 			if int64(currentPrime)*int64(currentPrime) > int64(N) {
 				break
 			}
@@ -113,7 +134,7 @@ func iterateAfterAB(a int64, b int64, sqrt int64, pIndex int, N int, primeNumber
 			sqrtMulA *= int64(currentPrime)
 		}
 	}
-	return localAns, nil
+	return localAns
 }
 
 func solveForParticularNFast(N int, ansList *[]ABC) (int64, error) {
@@ -125,11 +146,11 @@ func solveForParticularNFast(N int, ansList *[]ABC) (int64, error) {
 	// fmt.Println(N, len(primeNumberList))
 	// fmt.Println(N/len(primeNumberList), math.Log(float64(N)))
 
-	return iterateAfterAB(1, 1, 1, 0, N, &primeNumberList, ansList)
+	return iterateAfterAB(1, 1, 1, 0, N, &primeNumberList, ansList), nil
 }
 
 func solveForParticularNSlow(N int, ansList *[]ABC) (int64, error) {
-	if N < 1 || N > 1000 {
+	if N < 1 || N > 10000 {
 		return 0, errors.New("slow solver only supports N from 1 to 1000")
 	}
 	var localAns int64
@@ -156,7 +177,7 @@ func Problem510() (int64, error) {
 	// fmt.Println(ans)
 	ansList := make([]ABC, 0)
 	//return solveForParticularNFast(3, &ansList)
-	return solveForParticularNFast(100000000, &ansList)
+	return solveForParticularNFast(2000000, &ansList)
 	// return solveForParticularNFast(100, &ansList)
 	//return 0, errors.New("not found an answer")
 }
