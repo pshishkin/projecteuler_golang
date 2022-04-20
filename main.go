@@ -6,10 +6,10 @@ import (
 )
 
 func main() {
-	ans, err := Problem206()
+	ans, err := Problem510()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("206: %v\n", ans)
+	fmt.Printf("510: %v\n", ans)
 }

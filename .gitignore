@@ -4,6 +4,7 @@
 *.dll
 *.so
 *.dylib
+projecteuler_golang
 
 # Test binary, built with `go test -c`
 *.test
