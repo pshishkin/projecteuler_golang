@@ -2,8 +2,14 @@ package main
 
 import (
 	"fmt"
+	"log"
 )
 
 func main() {
-	fmt.Printf("206: %v\n", Problem206())
+	ans, err := Problem206()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("206: %v\n", ans)
 }
