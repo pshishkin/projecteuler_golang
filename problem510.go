@@ -69,7 +69,10 @@ func iterateAfterAB(a int64, b int64, sqrt int64, pIndex int, N int, primeNumber
 	// N = 10^9
 	// a and b ~= 10^9
 	if a*int64(currentPrime) > int64(N) && b*int64(currentPrime) > int64(N) {
-		return localAns
+		return 0
+	}
+	if a*int64(currentPrime)*b*int64(currentPrime) > int64(N)*int64(N) {
+		return 0
 	}
 
 	primePowerA := 0
@@ -85,8 +88,8 @@ func iterateAfterAB(a int64, b int64, sqrt int64, pIndex int, N int, primeNumber
 			primeMulB *= int64(currentPrime)
 			sqrtMulB *= int64(currentPrime)
 		}
-		for b*primeMulB <= int64(N) {
 
+		for b*primeMulB <= int64(N) {
 			if primePowerA != 0 || primePowerB != 0 {
 				// something new and unique, let's validate it
 				c := validateAB(a*primeMulA, b*primeMulB, sqrt*sqrtMulA*sqrtMulB, N)
@@ -177,7 +180,7 @@ func Problem510() (int64, error) {
 	// fmt.Println(ans)
 	ansList := make([]ABC, 0)
 	//return solveForParticularNFast(3, &ansList)
-	return solveForParticularNFast(2000000, &ansList)
+	return solveForParticularNFast(1000000000, &ansList)
 	// return solveForParticularNFast(100, &ansList)
 	//return 0, errors.New("not found an answer")
 }

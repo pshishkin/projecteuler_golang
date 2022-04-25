@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestBruteforceProblem510(t *testing.T) {
+func TestBruteForceProblem510(t *testing.T) {
 	for N := 1; N <= 3000; N += 1 {
 		var slowAnsList []ABC
 		slowAns, slowErr := solveForParticularNSlow(N, &slowAnsList)
